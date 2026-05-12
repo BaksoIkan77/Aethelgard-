@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aethelgard — The Stitched World</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #080a0e;
+  --surface:   #0d0f14;
+  --card:      #111318;
+  --border:    #1e2028;
+  --border2:   #2a2d38;
+  --text:      #b0a890;
+  --dim:       #6a6455;
+  --heading:   #c8b87a;
+  --gold:      #c8a84a;
+  --gold-dim:  #3a2e10;
+  --red:       #8c3030;
+  --red-dim:   #1a0808;
+  --cyan:      #507080;
+  --sidebar-w: 300px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+/* ─── SCROLLBAR ─────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2820; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3428; }
+
+/* ─── SIDEBAR ───────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+#sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--gold-dim) 30%, var(--gold-dim) 70%, transparent);
+  pointer-events: none;
+}
+
+#sidebar-header {
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #0f1018 0%, var(--surface) 100%);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+#sidebar-header:hover { opacity: 0.8; }
+
+.logo-sigil {
+  font-size: 1.8rem;
+  margin-bottom: 0.4rem;
+  opacity: 0.6;
+}
+
+#sidebar-header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--heading);
+  letter-spacing: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+#sidebar-header .tagline {
+  font-size: 0.68rem;
+  color: var(--dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+
+#sidebar-search {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#sidebar-search input {
+  width: 100%;
+  background: #0a0c10;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 0.35rem 0.7rem;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  border-radius: 3px;
+  outline: none;
+}
+#sidebar-search input:focus { border-color: var(--gold-dim); }
+#sidebar-search input::placeholder { color: var(--dim); }
+
+#toc-scroll { overflow-y: auto; flex: 1; padding: 0.5rem 0; }
+
+.toc-section { margin-bottom: 0.15rem; }
+
+.toc-section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 4px;
+  color: var(--dim);
+  text-transform: uppercase;
+  padding: 0.5rem 1.2rem 0.2rem;
+  display: block;
+}
+
+#toc button {
+  display: block;
+  width: 100%;
+  padding: 0.32rem 1.2rem;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  color: #7a7060;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+#toc button:hover { color: var(--heading); background: rgba(200,168,74,0.04); border-left-color: var(--gold-dim); }
+#toc button.active { color: var(--heading); border-left-color: var(--gold); background: rgba(200,168,74,0.06); }
+
+/* ─── MAIN ──────────────────────── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(140,80,20,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(40,60,80,0.05) 0%, transparent 60%),
+    var(--bg);
+}
+
+#content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem 6rem;
+}
+
+/* ─── HERO / WELCOME ────────────── */
+.wiki-hero {
+  text-align: center;
+  padding: 2.5rem 0 3rem;
+  position: relative;
+  margin-bottom: 1rem;
+}
+.wiki-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+}
+.hero-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 7px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--heading);
+  font-weight: 900;
+  letter-spacing: 4px;
+  line-height: 1.1;
+  text-shadow: 0 0 60px rgba(200,168,74,0.12);
+  margin-bottom: 0.8rem;
+}
+.hero-sub {
+  font-size: 1rem;
+  color: var(--dim);
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ─── SECTIONS ──────────────────── */
+.wiki-section { display: none; }
+.wiki-section.active { display: block; animation: fadeIn 0.35s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── SECTION HEADERS ───────────── */
+h2.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 6px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin: 1rem 0 0;
+  padding-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+h2.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--border2), transparent);
+}
+h1.page-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--heading);
+  font-weight: 600;
+  letter-spacing: 2px;
+  margin: 0.2rem 0 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.3;
+}
+h2.content-h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: var(--heading);
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin: 2rem 0 0.6rem;
+}
+h3.content-h3 {
+  font-size: 1rem;
+  color: var(--gold);
+  font-style: italic;
+  margin: 1.5rem 0 0.5rem;
+  font-weight: 400;
+}
+
+/* ─── DIVIDERS ──────────────────── */
+.divider {
+  border: none; height: 1px;
+  background: linear-gradient(to right, transparent, var(--border2) 20%, var(--border2) 80%, transparent);
+  margin: 3rem 0;
+}
+.divider-ornate {
+  text-align: center; margin: 3rem 0; color: var(--gold-dim); font-size: 1.2rem; position: relative;
+}
+.divider-ornate::before, .divider-ornate::after {
+  content: ''; position: absolute; top: 50%; width: calc(50% - 2rem); height: 1px;
+  background: linear-gradient(to right, transparent, var(--border2));
+}
+.divider-ornate::before { left: 0; }
+.divider-ornate::after { right: 0; background: linear-gradient(to left, transparent, var(--border2)); }
+
+/* ─── CARDS ─────────────────────── */
+.entry-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.3rem 1.5rem;
+  margin: 1rem 0;
+  position: relative;
+}
+.entry-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--gold-dim), transparent);
+}
+.entry-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--heading);
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
+}
+.entry-meta {
+  font-size: 0.72rem;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+.entry-tags {
+  display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem;
+}
+.tag {
+  font-size: 0.65rem; padding: 0.12rem 0.45rem;
+  border: 1px solid var(--border2); color: var(--dim);
+  letter-spacing: 1px; text-transform: uppercase; border-radius: 2px; background: #0a0c10;
+}
+.tag.faction { border-color: #2a3020; color: #607050; }
+.tag.danger  { border-color: #3a1818; color: #804040; }
+.tag.magic   { border-color: #20253a; color: #506080; }
+.tag.secret  { border-color: var(--red); color: #c06060; }
+
+/* ─── STATS ROW ─────────────────── */
+.stats-row {
+  display: flex; gap: 1.2rem; flex-wrap: wrap;
+  margin: 0.6rem 0 0.8rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.stat { display: flex; flex-direction: column; gap: 0.1rem; }
+.stat-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); }
+.stat-value { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--heading); }
+
+/* ─── TYPOGRAPHY ────────────────── */
+p { margin-bottom: 0.8rem; }
+strong { color: #d0c080; font-weight: 600; }
+em { color: #a09060; }
+a { color: #a09060; text-decoration: none; border-bottom: 1px solid var(--gold-dim); }
+a:hover { color: var(--gold); }
+ul, ol { margin: 0.4rem 0 0.8rem 1.5rem; }
+li { margin-bottom: 0.2rem; }
+
+blockquote {
+  margin: 1.2rem 0; padding: 0.8rem 1.2rem;
+  background: #0a0c10; border-left: 3px solid var(--gold-dim);
+  border-radius: 0 4px 4px 0; font-style: italic; color: #8a8070; font-size: 0.95rem;
+}
+blockquote strong {
+  display: block; font-family: 'Cinzel', serif; font-size: 0.7rem;
+  letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
+  margin-bottom: 0.4rem; font-style: normal;
+}
+
+/* ─── TABLES ────────────────────── */
+.wiki-table {
+  width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem;
+}
+.wiki-table th {
+  font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim); font-weight: 600;
+  padding: 0.5rem 0.8rem; text-align: left; background: #0a0c10;
+  border-bottom: 1px solid var(--border2);
+}
+.wiki-table td {
+  padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text);
+}
+.wiki-table tr:hover td { background: rgba(255,255,255,0.01); }
+
+/* ─── SPECIAL BOXES ─────────────── */
+.classified {
+  background: var(--red-dim); border: 1px solid var(--red);
+  border-radius: 4px; padding: 1rem 1.3rem; margin: 1.2rem 0;
+}
+.classified-header {
+  font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 3px;
+  text-transform: uppercase; color: #c06060; margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.classified-header::before { content: '⚠'; font-size: 0.7rem; }
+
+.lore-box {
+  background: linear-gradient(135deg, #0d0f14 0%, #0a0c10 100%);
+  border: 1px solid var(--border2); border-radius: 4px;
+  padding: 1rem 1.3rem; margin: 1.2rem 0; position: relative; overflow: hidden;
+}
+.lore-box::before {
+  content: '"'; position: absolute; top: -0.5rem; left: 0.6rem;
+  font-size: 4rem; color: var(--gold-dim); font-family: Georgia, serif;
+  line-height: 1; pointer-events: none;
+}
+.lore-box p { color: #a09070; font-style: italic; padding-left: 0.8rem; }
+.lore-box .attribution { font-size: 0.75rem; color: var(--dim); font-style: normal; text-align: right; margin-top: 0.4rem; }
+
+/* ─── TABLE HIGHLIGHTS ──────────── */
+.circle-1-2 td { opacity: 0.7; }
+.circle-3-4 td:first-child { color: #7a9060; }
+.circle-5-6 td:first-child { color: #a0a060; }
+.circle-7   td:first-child { color: var(--gold); font-weight: 600; }
+.circle-8   td:first-child { color: #d08040; font-weight: 600; }
+.circle-9   td:first-child { color: #c04040; font-weight: 600; }
+.circle-10  td:first-child { color: #a060c0; font-weight: 600; font-style: italic; }
+
+/* ─── RESPONSIVE ────────────────── */
+@media (max-width: 900px) { :root { --sidebar-w: 240px; } }
+@media (max-width: 700px) {
+  body { flex-direction: column; overflow: auto; height: auto; }
+  #sidebar { width: 100%; min-width: 100%; max-height: 45vh; }
+  #main { overflow: visible; }
+  #content { padding: 1.2rem 1rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<nav id="sidebar">
+  <div id="sidebar-header" onclick="showSection('welcome')" title="Return to Home">
+    <div class="logo-sigil">⚔</div>
+    <h1>AETHELGARD</h1>
+    <div class="tagline">The Stitched World</div>
+  </div>
+
+  <div id="sidebar-search">
+    <input type="text" id="search-input" placeholder="Search wiki..." autocomplete="off">
+  </div>
+
+  <div id="toc-scroll">
+    <div id="toc">
+
+      <div class="toc-section">
+        <span class="toc-section-label">Foundations</span>
+        <button data-target="world-overview">I. World Overview</button>
+        <button data-target="five-goddesses">II. The Five Goddesses</button>
+        <button data-target="weave-aether">III. The Weave & Aether</button>
+      </div>
+
+      <div class="toc-section">
+        <span class="toc-section-label">The World</span>
+        <button data-target="geography">IV. Geography</button>
+        <button data-target="nations">V. Nations & Factions</button>
+        <button data-target="alliances">VI. Global Politics</button>
+      </div>
+
+      <div class="toc-section">
+        <span class="toc-section-label">The Depths</span>
+        <button data-target="dungeons">VII. Dungeons</button>
+        <button data-target="great-maw">VIII. The Great Maw</button>
+      </div>
+
+      <div class="toc-section">
+        <span class="toc-section-label">Creatures</span>
+        <button data-target="bestiary">IX. Bestiary</button>
+        <button data-target="races">X. Races</button>
+      </div>
+
+      <div class="toc-section">
+        <span class="toc-section-label">History</span>
+        <button data-target="timeline">XI. Timeline</button>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main id="main">
+<div id="content">
+
+<!-- ═══════════════ WELCOME ═══════════════ -->
+<div id="section-welcome" class="wiki-section active">
+  <div class="wiki-hero" style="padding-top:4rem;">
+    <div class="hero-eyebrow">Codex Aethelgardensis</div>
+    <h1 class="hero-title">AETHELGARD</h1>
+    <div class="hero-sub">A stitched-together corpse of a ruined era — and everything that survived it.</div>
+  </div>
+  <p style="text-align:center; color:var(--dim); max-width:500px; margin:0 auto;">
+    Long before mortal history, the world was a borderless realm of godlike entities waging eternal war. Their final conflict—<strong>The Great Shattering</strong>—tore reality apart. When the dust settled, only five goddesses remained. They forged a bitter, silent truce, grafted the shattered fragments of the dead world into one continent, then buried themselves in eternal slumber. Aethelgard was born not out of love—but desperation.
+  </p>
+  <blockquote style="max-width:500px; margin:1.5rem auto;">
+    <strong>The Sweet Myth</strong>
+    The world was born from the perfect harmony of the Five Goddesses—a beautiful gift created out of love for their descendants.
+    <br><br>
+    <strong>The Dark Truth</strong>
+    Aethelgard is a stitched-together, radioactive corpse of a ruined era. The goddesses did not create paradise. They built a lifeboat.
+  </blockquote>
+  <p style="text-align:center; color:var(--dim); font-size:0.85rem; margin-top:1.5rem;">Select a topic from the sidebar to begin exploring.</p>
+</div>
+
+<!-- ═══════════════ I. WORLD OVERVIEW ═══════════════ -->
+<div id="section-world-overview" class="wiki-section">
+  <h2 class="section-title">I</h2>
+  <h1 class="page-title">World Overview</h1>
+
+  <h2 class="content-h2">Scale & Scope</h2>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-label">Total Area</span><span class="stat-value">180 million km²</span></div>
+    <div class="stat"><span class="stat-label">Sovereign Territory</span><span class="stat-value">74.2%</span></div>
+    <div class="stat"><span class="stat-label">Wild Frontier</span><span class="stat-value">25.8%</span></div>
+    <div class="stat"><span class="stat-label">Tech Level</span><span class="stat-value">Medieval Magicraft</span></div>
+    <div class="stat"><span class="stat-label">Air Travel</span><span class="stat-value">Dragons / Sylphs / Angels only</span></div>
+  </div>
+
+  <h2 class="content-h2">Travel Times</h2>
+  <table class="wiki-table">
+    <tr><th>Method</th><th>Speed</th><th>Notes</th></tr>
+    <tr><td>On foot (road)</td><td>30–40 km/day</td><td>Standard</td></tr>
+    <tr><td>On foot (off-road)</td><td>20–25 km/day</td><td>Rough terrain</td></tr>
+    <tr><td>Horseback</td><td>50 km/day</td><td></td></tr>
+    <tr><td>Wagon</td><td>30 km/day</td><td>Cargo loads</td></tr>
+    <tr><td>Seam Zone</td><td>2× slower</td><td>Extreme danger</td></tr>
+    <tr><td>Coast-to-coast</td><td>1.5–2 years</td><td>Faster via Aether vehicles</td></tr>
+  </table>
+
+  <h2 class="content-h2">The Cardinal Axis</h2>
+  <table class="wiki-table">
+    <tr><th>Direction</th><th>Region</th><th>Character</th></tr>
+    <tr><td>North</td><td>Vorn Mountains</td><td>High peaks, dwarven cities, dragon sanctuary, void cliffs</td></tr>
+    <tr><td>Center</td><td>Valley of Kings</td><td>Fertile heartland; Aethelburg & Vornhold above The Great Maw</td></tr>
+    <tr><td>West</td><td>Hills → Seam Zone → Black Domain</td><td>Increasing instability to demonic wasteland</td></tr>
+    <tr><td>East</td><td>Hills → Grasslands → Seam Zone</td><td>Sparse to nomadic to dungeon-dense void border</td></tr>
+    <tr><td>South</td><td>Primeval Forest</td><td>Ancient woodland; elves, werebeasts, hidden island beyond</td></tr>
+  </table>
+
+  <h2 class="content-h2">The Three Great Rivers</h2>
+  <div class="entry-card">
+    <div class="entry-name">The Aethel River</div>
+    <div class="entry-meta">≈8,000 km · The Agricultural Backbone</div>
+    <p>Largest river in the world. 1 km average width. Annual floods up to 5 meters fertilize the Valley of Kings. Route: Vorn Mountains → Aethelburg → Southern Sea.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Valer River — The Adventurer's Artery</div>
+    <div class="entry-meta">≈6,000 km · Anomalous</div>
+    <p>Waters reflect <em>shadows of the past</em>. Those who drink dream of the Old World. Pack shamans call it the <em>"vein of the underworld."</em></p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Mystra River</div>
+    <div class="entry-meta">≈5,000 km · Most Uncanny River in Existence</div>
+    <p>Flows normally from the Vorn Mountains—then <em>abruptly stops</em> in the open plains. Half a kilometer below, an underground river flows in <em>reverse</em>, back toward its source. Objects dropped in have reappeared weeks later in Primeval Forest lakes thousands of kilometers away.</p>
+  </div>
+
+  <h2 class="content-h2">The Seas & The Void</h2>
+  <table class="wiki-table">
+    <tr><th>Zone</th><th>Distance</th><th>Threat</th></tr>
+    <tr><td>Coastal Zone</td><td>0–50 km</td><td>Safe; minor sea monsters</td></tr>
+    <tr><td>Twilight Zone</td><td>50–200 km</td><td>Krakens; armed convoys only</td></tr>
+    <tr><td>Black Zone</td><td>200 km+</td><td>Leviathans; no ship returns</td></tr>
+    <tr><td>The Void</td><td>Beyond all zones</td><td>Absolute erasure. You are unmade—erased from memory and history.</td></tr>
+  </table>
+
+  <h2 class="content-h2">Currency</h2>
+  <table class="wiki-table">
+    <tr><th>Coin</th><th>Value</th></tr>
+    <tr><td>Copper Coin</td><td>Base unit</td></tr>
+    <tr><td>Silver Coin</td><td>= 10 Copper</td></tr>
+    <tr><td>Gold Coin</td><td>= 100 Silver</td></tr>
+    <tr><td>Aethel Coin</td><td>= 1,000 Gold</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════ II. THE FIVE GODDESSES ═══════════════ -->
+<div id="section-five-goddesses" class="wiki-section">
+  <h2 class="section-title">II</h2>
+  <h1 class="page-title">The Five Goddesses</h1>
+  <p>Before the Great Shattering, dozens of divine entities walked the Old World. Only five survived. Exhausted beyond measure, they grafted the broken fragments of the dead world together—each weaving one inviolable Law into the new reality—then buried themselves in eternal slumber. They do not answer prayers. They simply sleep.</p>
+  <div class="entry-card">
+    <div class="entry-name">Aethelgard — Law of Spatial Stability</div>
+    <div class="entry-meta">Domain: Earth's Core · Gravity · Physical Integrity</div>
+    <p><em>"The world is finite. It cannot grow or expand. The land shall hold together by her eternal will."</em></p>
+    <p>She forcibly grafted the shattered continental fragments together. Every mountain range is a scar from her stitching. Every Seam Zone is a wound she could not fully close. The continent was named for her.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Valerion — Law of Linear Time</div>
+    <div class="entry-meta">Domain: Time · Irreversibility · The Permanence of Regret</div>
+    <p><em>"The past cannot be repeated. It cannot be changed. Regrets are permanent. Time flows only forward."</em></p>
+    <p>The cruelest mercy. In the Old World, gods could rewind mistakes and resurrect the fallen—and this bred catastrophe. Valerion ensured no resurrection exists in Aethelgard. The dead stay dead.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Nyxara — Law of Life & The Immune System</div>
+    <div class="entry-meta">Domain: Flora · Fauna · The World's Biological Defenses</div>
+    <p><em>"Life shall flourish and defend itself. All living things are part of a sacred, self-correcting balance."</em></p>
+    <p>Mother of monsters. She created the vast ecology of Aethelgard—not out of malice, but necessity. Behemoths are her titans. Surface monsters are her immune cells. She co-created the Leviathans as the final wall against the Void.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Thanatos — Law of Absolute Finality</div>
+    <div class="entry-meta">Domain: Death · Souls · The Eternal End</div>
+    <p><em>"There is no reincarnation. No resurrection. No afterlife. Dead souls disintegrate into Aether. Everything must end."</em></p>
+    <p>The most misunderstood of the Five. In the Old World, immortality bred monstrous apathy. Thanatos ensured that all beings—mortal or not—would eventually face an absolute end.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Mystra-Thoth — Law of Magic & Logic</div>
+    <div class="entry-meta">Domain: Aether · The Weave · Knowledge · Magic as Science</div>
+    <p><em>"Magic is not luck. It is not faith. It is an exact, predictable science. An identical pull from the Weave always produces an identical result."</em></p>
+    <p>The great systematizer. She wove the Aether Weave—the world-spanning network governing all magic. Aether is recycled soul energy. Every spell cast consumes the remnants of a dead being.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ III. THE WEAVE & AETHER ═══════════════ -->
+<div id="section-weave-aether" class="wiki-section">
+  <h2 class="section-title">III</h2>
+  <h1 class="page-title">The Weave & Aether</h1>
+  <p>The Aether Weave is the invisible skeleton of Aethelgard—a world-spanning network of magical threads designed by <strong>Mystra-Thoth</strong>. Magic here is not faith. It is an exact, predictable science. Every spell follows the same principle: reach into the Weave, pull a specific thread, shape it with will, release it. Identical input, identical output.</p>
+  <h2 class="content-h2">Internal vs. External Weave</h2>
+  <p><strong>Internal Aether Weave</strong> — The safe, personal reservoir within the caster's body. The primary power source for almost all mortals. One's Internal Weave capacity determines their Circle.</p>
+  <p><strong>External Aether Weave</strong> — Touching the Greater Weave of the world itself. Grants immense power but attracts Old World grudges, violently accelerates aging, and causes catastrophic side effects. Only ancient High Races can wield it safely.</p>
+  <h2 class="content-h2">Affinities</h2>
+  <table class="wiki-table">
+    <tr><th>Category</th><th>Examples</th><th>Note</th></tr>
+    <tr><td>Elemental</td><td>Fire, Water, Earth, Air, Lightning, Ice</td><td>Most common</td></tr>
+    <tr><td>Physical</td><td>Enhancement, Transformation, Body Reinforcement</td><td>Common</td></tr>
+    <tr><td>Soul & Life</td><td>Healing, Empathy, Soul Sensing</td><td></td></tr>
+    <tr><td>Death & Curse</td><td>Necromancy, Decay, Curses</td><td>Feared</td></tr>
+    <tr><td>Mental</td><td>Telepathy, Illusion, Memory Manipulation</td><td></td></tr>
+    <tr><td>Space & Time</td><td>Teleportation, Spatial Distortion</td><td>Requires External Weave</td></tr>
+    <tr><td>Dungeon & Wound</td><td>Dungeon Manipulation, Corruption</td><td>Extremely dangerous</td></tr>
+    <tr><td>Holy</td><td>Purification, Divine Channeling, Exorcism</td><td></td></tr>
+    <tr><td>Nature</td><td>Flora/Fauna Control, Weather Influence</td><td>Elven specialty</td></tr>
+    <tr><td>Art & Creation</td><td>Magical Crafting, Golem Creation</td><td></td></tr>
+  </table>
+  <p><strong>Rare Dual Affinities</strong> exist—slower progression, but unmatched versatility.</p>
+  <h2 class="content-h2">The Ten Circles of Power</h2>
+  <table class="wiki-table">
+    <tr><th>Circle</th><th>Title</th><th>Threat Scale</th><th>Known Examples</th></tr>
+    <tr class="circle-1-2"><td>1</td><td>Beginner</td><td>An object</td><td>Commoners with minor talent</td></tr>
+    <tr class="circle-1-2"><td>2</td><td>Trained</td><td>An individual</td><td>Soldiers, junior adventurers</td></tr>
+    <tr class="circle-3-4"><td>3</td><td>Expert</td><td>A household</td><td>Veteran adventurers, military officers</td></tr>
+    <tr class="circle-3-4"><td>4</td><td>Master</td><td>A neighborhood</td><td>Elite knights, senior guild members</td></tr>
+    <tr class="circle-5-6"><td>5</td><td>Grandmaster</td><td>A village</td><td>Pope Callista III, Brynn Copperhand</td></tr>
+    <tr class="circle-5-6"><td>6</td><td>Living Legend</td><td>A city district</td><td>Darian Vex, Thalanil Silverleaf</td></tr>
+    <tr class="circle-7"><td>7</td><td>Hero</td><td>A major city</td><td>Warlord Varrak, Kaelen Ironfang, Demon Commanders</td></tr>
+    <tr class="circle-8"><td>8</td><td>Child of Gods</td><td>A nation-state</td><td>The Unraveler, Fallen Angels, Patriarchs (top)</td></tr>
+    <tr class="circle-9"><td>9</td><td>Godlike</td><td>A continent</td><td>Elder Ancient Dragons (est.)</td></tr>
+    <tr class="circle-10"><td>10</td><td>Divine</td><td>Reality itself</td><td>The Five Goddesses — now slumbering</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════ IV. GEOGRAPHY ═══════════════ -->
+<div id="section-geography" class="wiki-section">
+  <h2 class="section-title">IV</h2>
+  <h1 class="page-title">Geography</h1>
+  <div class="entry-card">
+    <div class="entry-name">The Vorn Mountains — The Apex</div>
+    <div class="entry-meta">≈15 million km² · Northern Continent</div>
+    <p>The spine of Aethelgard—a vertical world unto themselves. A constant low-frequency hum resonates through the range, believed to be the voices of dead mountain gods. Hosts civilizations at every elevation: Kazad-Vorn (deep underground), Vorn-Taraz (southern slopes), Gar-Vang (northwestern foothills), Dragon Nest / Nxyaria (extreme northern peak).</p>
+    <div class="entry-tags"><span class="tag">location</span><span class="tag faction">4 Nations</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Valley of Kings — The Heartland</div>
+    <div class="entry-meta">≈10 million km² · Continental Center</div>
+    <p>The most fertile land in Aethelgard. Aethelburg gleams at its center. Vornhold sits at its northern edge, directly above The Great Maw. The world's breadbasket—and its most contested political prize.</p>
+    <div class="entry-tags"><span class="tag faction">Valdran Empire</span><span class="tag faction">Guildhall</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Primeval Forest</div>
+    <div class="entry-meta">≈28 million km² · Southern Continent</div>
+    <p>Oldest woodland in Aethelgard. Trees continuously vibrate with magical echoes of the Old World. Three civilizations share it: Aelderim (memory-keeping Elves, central), Verdantus (pacifist Werebeasts, west), Sol-Ventari (progressive Elves, east).</p>
+    <div class="entry-tags"><span class="tag faction">3 Nations</span><span class="tag magic">Magical Anomaly</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Eastern Grasslands</div>
+    <div class="entry-meta">Vast territory, constantly shrinking · Eastern Continent</div>
+    <p>Endless sea of waist-high golden grass. Highest Behemoth concentration in Aethelgard—including the Walking Mountains, so colossal that forests grow upon their backs. Home of The Pack.</p>
+    <div class="entry-tags"><span class="tag danger">Behemoth Territory</span><span class="tag faction">The Pack</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Western Seam Zone</div>
+    <div class="entry-meta">≈9 million km² · Borders Black Domain</div>
+    <p>Toxic ancient battlefield. Physics are broken—gravity shifts within meters, spatial distortions make maps unreliable. The Theocracy of the Sacred Wound holds this line as the absolute last shield against demonic expansion.</p>
+    <div class="entry-tags"><span class="tag danger">Extreme Danger</span><span class="tag faction">Theocracy</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Black Domain</div>
+    <div class="entry-meta">24 million km² · Far Western Edge · Capital: Malakh-Kar</div>
+    <p>A wasteland of barren black soil—the primary epicenter of the Primordial War. Zero natural resources. The sky is permanently stained red or dark purple. The First King slumbers beneath his capital.</p>
+    <div class="entry-tags"><span class="tag danger">Demonic Territory</span><span class="tag secret">First King Sleeps Here</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Noctisia — The Hidden Island</div>
+    <div class="entry-meta">2.5 million km² · Off Southern Coast · Capital: Umbra Keep</div>
+    <p>Perpetual twilight. Completely hidden by the <em>Guardian Mist</em>—a sentient magical barrier. No foreign fleet has ever breached it without invitation.</p>
+    <div class="entry-tags"><span class="tag faction">Vampire Nation</span><span class="tag magic">Sentient Barrier</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════ V. NATIONS & FACTIONS ═══════════════ -->
+<div id="section-nations" class="wiki-section">
+  <h2 class="section-title">V</h2>
+  <h1 class="page-title">Nations & Factions</h1>
+
+  <!-- VALDRAN EMPIRE -->
+  <div class="entry-card">
+    <div class="entry-name">Valdran Empire</div>
+    <div class="entry-meta">42 million km² · Capital: Aethelburg · Governance: Absolute Hereditary Monarchy</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Leader</span><span class="stat-value">Empress Elenor Asteria Valdris IX</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">Year 250 EK</span></div>
+      <div class="stat"><span class="stat-label">Dominant Race</span><span class="stat-value">Human (60% of all humans)</span></div>
+    </div>
+    <p>Largest sovereign nation. Rules through the divine legitimacy of the <strong>First Hero's bloodline</strong>. Once every few centuries, a true Hero (Circle 6–8) is born into the royal line. <strong>Crisis:</strong> The sacred bloodline is thinning. No true Hero has been born in several generations.</p>
+    <div class="entry-tags"><span class="tag faction">Western Axis</span><span class="tag">Breadbasket of the World</span></div>
+  </div>
+
+  <!-- THEOCRACY -->
+  <div class="entry-card">
+    <div class="entry-name">Theocracy of the Sacred Wound</div>
+    <div class="entry-meta">9 million km² · Capital: Lumina Aeterna · Governance: Elective Theocracy</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Leader</span><span class="stat-value">Pope Callista III (Demi-Human)</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">1730 EK</span></div>
+      <div class="stat"><span class="stat-label">Advisors</span><span class="stat-value">4 Fallen Angels</span></div>
+    </div>
+    <p>Founded by Fallen Angels who survived the First Great War. Core doctrine: <em>"There is no heaven. The gods are dead. If no gods remain to protect the world, then mortals must protect each other."</em> Positioned directly inside the Western Seam Zone—the nation <em>is</em> the border.</p>
+    <div class="entry-tags"><span class="tag faction">Western Axis</span><span class="tag danger">3,000 years of war</span></div>
+  </div>
+
+  <!-- GUILDHALL -->
+  <div class="entry-card">
+    <div class="entry-name">The Guildhall</div>
+    <div class="entry-meta">4 million km² · Capital: Vornhold (intentionally wall-less) · Governance: Adventurer Meritocracy</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Leaders</span><span class="stat-value">Council of Masters (7 S/A-rank)</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">2050 EK</span></div>
+      <div class="stat"><span class="stat-label">Ranking</span><span class="stat-value">E → S rank</span></div>
+    </div>
+    <p>Built above and around <strong>The Great Maw</strong>—the largest dungeon in existence. If the Guildhall falls, the Maw floods the world within a generation. <strong>Armed Neutrality</strong>: blades face downward, toward the dungeon.</p>
+    <div class="entry-tags"><span class="tag magic">Dungeon Containment</span><span class="tag">Anti-Discrimination Policy</span></div>
+  </div>
+
+  <!-- IRON COVENANT -->
+  <div class="entry-card">
+    <div class="entry-name">Iron Covenant</div>
+    <div class="entry-meta">3 million km² · Capital: Ferrostad · Governance: Mercenary Syndicate (The Chain)</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Leaders</span><span class="stat-value">The Chain — 7 Links</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">1890 EK (sovereign 2400)</span></div>
+    </div>
+    <p>Born from the ashes of the Valdris Civil War. Core philosophy: <em>"Power is taken, never inherited."</em> A broken contract is the only unforgivable sin. <strong>The Seven Links:</strong> Kaelen (War), Spectre-7 (Shadow, identity unknown), Vexis (Coin), Brynn Copperhand (Iron), Sera (Blood), Mikhail (Bone), and one <em>Empty Seat</em>.</p>
+    <div class="entry-tags"><span class="tag danger">Bitter Rivalry: Guildhall</span></div>
+  </div>
+
+  <!-- BLACK DOMAIN -->
+  <div class="entry-card">
+    <div class="entry-name">Black Domain</div>
+    <div class="entry-meta">24 million km² · Capital: Malakh-Kar · Governance: Absolute Military Dictatorship</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Apex Leader</span><span class="stat-value">The Unraveler (Circle 8–9)</span></div>
+      <div class="stat"><span class="stat-label">Commanders</span><span class="stat-value">8 (Weave 6–8 each)</span></div>
+    </div>
+    <p>Forged in the First Great War. The First King fell into eternal slumber at the Battle of Malakh-Kar in 1715 EK. <strong>Key Advantages:</strong> Genetic Memory (5,000 years of combat instinct at birth), Old World Arsenal (70% still functional). <strong>Hidden:</strong> Revisionist Faction secretly questioning eternal war.</p>
+    <div class="entry-tags"><span class="tag danger">Globally Condemned</span><span class="tag secret">Revisionist Faction (Classified)</span></div>
+  </div>
+
+  <!-- AELDERIM -->
+  <div class="entry-card">
+    <div class="entry-name">Aelderim</div>
+    <div class="entry-meta">14 million km² · Capital: Silmarya · Governance: Constitutional Monarchy + Council of Elders</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Keeper of Memory</span><span class="stat-value">Elder Luthien (5,000+ yrs)</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">Year 10 EK</span></div>
+    </div>
+    <p>One of the oldest sovereign nations. Core philosophy: <em>"We shall not forget."</em> The <strong>World Tree</strong> houses their recorded history within its bark. <strong>Museum Sickness:</strong> Cultural melancholy from living perpetually in the past. Internal schism: Traditionalists vs. Secret Reformists who wish to burn the archives.</p>
+    <div class="entry-tags"><span class="tag faction">Elven Nation</span><span class="tag magic">World Tree</span></div>
+  </div>
+
+  <!-- VERDANTUS -->
+  <div class="entry-card">
+    <div class="entry-name">Verdantus</div>
+    <div class="entry-meta">8 million km² · Capital: Greenholt · Governance: Council of Forest Elders</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Elder</span><span class="stat-value">Elder Mossback (Turtle Werebeast, 1,200 yrs)</span></div>
+    </div>
+    <p>An apex predator that consciously chose not to kill. After the First Great War, the entire race took a sacred vow of pacifism, codified into law in 1750 EK. <strong>Forest Keepers</strong> train for 15 years in non-lethal combat. <strong>Woundless Protectors</strong>—those who have never taken a single life—are the highest title.</p>
+    <div class="entry-tags"><span class="tag faction">Werebeast Nation</span><span class="tag">Absolute Pacifism</span></div>
+  </div>
+
+  <!-- THE PACK -->
+  <div class="entry-card">
+    <div class="entry-name">The Pack</div>
+    <div class="entry-meta">Eastern Grasslands (nomadic) · No Capital · Governance: Nomadic Tribal Meritocracy</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Alpha</span><span class="stat-value">Kaelen (Wolf Werebeast)</span></div>
+    </div>
+    <p>Militant Werebeasts who rejected pacifism. Core philosophy: <em>weakness is a fatal sin in a world built upon a corpse.</em> Greatest stealth hunters in Aethelgard. Internal split: Radicals vs. Pragmatists under Alpha Kaelen.</p>
+    <div class="entry-tags"><span class="tag faction">Werebeast Nation</span><span class="tag danger">Unpredictable</span></div>
+  </div>
+
+  <!-- VORN-TARAZ -->
+  <div class="entry-card">
+    <div class="entry-name">Vorn-Taraz</div>
+    <div class="entry-meta">6 million km² · Capital: Taraz-Vorn · Governance: Merchant Council</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Lord-Merchant</span><span class="stat-value">Brynn Copperhand</span></div>
+    </div>
+    <p>Progressive surface Dwarves who looked outward. Universally recognized as the world's greatest engineers and merchants. Birthplace of the Aether-wagon. <strong>The Counting House</strong>: largest and most secure bank in the world.</p>
+    <div class="entry-tags"><span class="tag faction">Western Axis + Mercantile Network</span><span class="tag">Global Technology Hub</span></div>
+  </div>
+
+  <!-- KAZAD-VORN -->
+  <div class="entry-card">
+    <div class="entry-name">Kazad-Vorn</div>
+    <div class="entry-meta">9 million km² · Capital: Kazad-Dum · Governance: Council of Elders</div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-label">Elder</span><span class="stat-value">Thrain Stoneheart</span></div>
+      <div class="stat"><span class="stat-label">Founded</span><span class="stat-value">Year 103 EK</span></div>
+    </div>
+    <p>Deep Dwarves who never left the stone. Core purpose: <em>dig down to find the ancestors.</em> Every tunnel is a prayer. <strong>Extreme isolationism</strong>—no imports, no exports, no treaties. The Depth Guards have not seen sunlight in generations.</p>
+    <div class="entry-tags"><span class="tag faction">Dwarven Nation (Deep)</span><span class="tag">Extreme Isolationism</span></div>
+  </div>
+
+  <!-- REMAINING NATIONS: Noctisia, Sanctum Aeternum, Sol-Ventari, Gar-Vang, Dragon Nest -->
+  <div class="entry-card">
+    <div class="entry-name">Noctisia</div>
+    <div class="entry-meta">2.5 million km² · Capital: Umbra Keep · Governance: Council of Patriarchs</div>
+    <p>Vampires who refused to be weapons in The First King's war. Core philosophy: <em>"Thirst is not destiny."</em> <strong>Shadow Forces</strong>: 20,000 elite vampires, each 500–1,000 year veterans. They do not conquer. They defend. They have never lost.</p>
+    <div class="entry-tags"><span class="tag faction">Vampire Nation</span><span class="tag magic">Guardian Mist</span></div>
+  </div>
+
+  <div class="entry-card">
+    <div class="entry-name">Sanctum Aeternum</div>
+    <div class="entry-meta">40 km² (sovereign district within Aethelburg) · Governance: Hereditary Elective Theocracy</div>
+    <p>Born from the Great Schism of 2000 EK. Core belief: <em>"If the truth is too cruel, we will build a kinder lie."</em> The <strong>Holy Inquisition</strong> (2,000 agents). 40+ million followers—the largest religious body. Eternal rival of Theocracy of the Sacred Wound.</p>
+    <div class="entry-tags"><span class="tag faction">Largest Religion</span><span class="tag danger">Eternal Rival: Theocracy</span></div>
+  </div>
+
+  <div class="entry-card">
+    <div class="entry-name">Sol-Ventari</div>
+    <div class="entry-meta">Eastern Primeval Forest fringes · No capital · Governance: Silver Council</div>
+    <p>Radical Elves who broke from Aelderim. Core doctrine: <em>"We burn the archives to forget."</em> Holding onto eternal grief is a deadly toxin. Relationship with Aelderim: a heavy, toxic cold war. <strong>Bridge Keepers</strong>: dedicated diplomats to the outside world.</p>
+    <div class="entry-tags"><span class="tag faction">Elven Nation (Progressive)</span><span class="tag danger">Cold War with Aelderim</span></div>
+  </div>
+
+  <div class="entry-card">
+    <div class="entry-name">Gar-Vang</div>
+    <div class="entry-meta">12 million km² · Capital: Gar-Durak · Governance: Meritocratic Council of Veterans</div>
+    <p>Orcs were created by the dead God of War as purposeless soldiers. They chose a new purpose: <em>guardians.</em> Sacred Oath: <em>"We will not let what happened to us happen to others."</em> Cold professionalism, never blind hatred. <strong>Controlled Berserker</strong>: amplifies power while maintaining perfect tactical awareness.</p>
+    <div class="entry-tags"><span class="tag faction">Orc Nation</span><span class="tag">Sacred Oath</span></div>
+  </div>
+
+  <div class="entry-card">
+    <div class="entry-name">Dragon Nest — Nxyaria, The Nameless Peak</div>
+    <div class="entry-meta">Northernmost Vorn Mountains · Hidden by eternal storms · Accessible by flight only</div>
+    <p>Ancient dragon sanctuary. <strong>The Eternal Egg</strong>: a colossal reservoir of pure Aether at the heart of the nest. <strong>Hierarchy by age:</strong> Dragon Lord (10,000+ years) → Elder Dragons → Adult Dragons → Young Dragons → Lesser Dragons & Wyverns.</p>
+    <div class="entry-tags"><span class="tag faction">Dragon Nation (Unofficial)</span><span class="tag magic">Inaccessible</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════ VI. GLOBAL POLITICS ═══════════════ -->
+<div id="section-alliances" class="wiki-section">
+  <h2 class="section-title">VI</h2>
+  <h1 class="page-title">Global Politics & Alliances</h1>
+  <div class="entry-card">
+    <div class="entry-name">The Western Axis</div>
+    <div class="entry-meta">Ironclad Symbiotic Alliance · Three Pillars</div>
+    <ul><li><strong>Valdran Empire</strong> — Provides the food (the Lifeblood of the world)</li><li><strong>Theocracy of the Sacred Wound</strong> — The military shield against demons</li><li><strong>Vorn-Taraz</strong> — Metallurgy and weapons (The Forge)</li></ul>
+    <p>If any one pillar falls, the others collapse within a generation.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Mercantile Network</div>
+    <p><strong>Vorn-Taraz</strong> creates technology and infrastructure. <strong>Iron Covenant</strong> manages global finances through The Counting House.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Shadow Scheme</div>
+    <div class="entry-meta">Highly Classified · Black Market Pipeline</div>
+    <p>The Black Domain secretly exports Old World weaponry to the Iron Covenant and corrupt imperial factions. Exposure would shatter the Western Axis.</p>
+    <div class="entry-tags"><span class="tag secret">Classified</span></div>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">Cold War of Faith</div>
+    <p><strong>Sanctum Aeternum</strong> (populist hope, 40+ million followers) vs. <strong>Theocracy of the Sacred Wound</strong> (elder races, grim reality). The Valdran Empire is caught in the middle.</p>
+  </div>
+  <div class="entry-card">
+    <div class="entry-name">The Food Council</div>
+    <div class="entry-meta">Supranational Diplomatic Body · Formed 1890 EK</div>
+    <p>9 signatory nations. Ensures food is a shared right of survival, never a weapon. The Valdran Empire—despite producing the world's food—holds <strong>no veto power</strong>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ VII. DUNGEONS ═══════════════ -->
+<div id="section-dungeons" class="wiki-section">
+  <h2 class="section-title">VII</h2>
+  <h1 class="page-title">Dungeons — The Wounds of Aethelgard</h1>
+  <p>Dungeons are the <strong>physical mouths of reality scars</strong>—festering wounds where the dead Old World bleeds into the stitched New. The Laws of the Five Goddesses weaken or reverse inside. To descend is to travel backward through the history of a dead era.</p>
+  <div class="lore-box">
+    <p>The Dungeon does not want explorers to die of starvation. Every layer possesses a unique, self-sustaining food source—a twisted chance to survive. Scholars debate whether this is the Dungeon desperately wanting mortals to <em>witness</em> the forgotten tragedy of the Old World… or simply wanting to prolong their psychological suffering.</p>
+    <div class="attribution">— Guildhall Research Division, Year 2390 EK</div>
+  </div>
+  <h2 class="content-h2">Classification System</h2>
+  <table class="wiki-table">
+    <tr><th>Rank</th><th>Depth</th><th>Description</th><th>Count</th></tr>
+    <tr><td>D–C</td><td>0–1 km</td><td>Imperfect chaotic creatures, basic hazards</td><td>Thousands</td></tr>
+    <tr><td>B–A</td><td>1–10 km</td><td>Structured monsters, reality anomalies</td><td>Hundreds</td></tr>
+    <tr><td>S</td><td>10–100 km</td><td>Sentient mini-civilizations. Apocalyptic global events</td><td>7 recorded</td></tr>
+    <tr><td>Apocalyptic</td><td>100 km+</td><td>Threatens all civilization if unchecked</td><td>1 — The Great Maw</td></tr>
+  </table>
+  <h2 class="content-h2">Depth Equals Age Theory</h2>
+  <table class="wiki-table">
+    <tr><th>Depth</th><th>Era Reached</th><th>Nature</th></tr>
+    <tr><td>0–1 km</td><td>End of Old World</td><td>Chaotic, failed creations</td></tr>
+    <tr><td>1–10 km</td><td>Millions of years ago</td><td>Ruins of advanced civilizations</td></tr>
+    <tr><td>10–100 km</td><td>Hundreds of millions of years</td><td>Primordial world; sentient apex monsters</td></tr>
+    <tr><td>100–300 km</td><td>Billions of years ago</td><td>Alien realities; physics and time cease</td></tr>
+    <tr><td>300 km+</td><td>Unknowable</td><td>Classified. Only highest authorities know the truth.</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════ VIII. THE GREAT MAW ═══════════════ -->
+<div id="section-great-maw" class="wiki-section">
+  <h2 class="section-title">VIII</h2>
+  <h1 class="page-title">The Great Maw</h1>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-label">Classification</span><span class="stat-value">Apocalyptic (only one)</span></div>
+    <div class="stat"><span class="stat-label">Known Depth</span><span class="stat-value">300 km+ (classified beyond)</span></div>
+    <div class="stat"><span class="stat-label">Location</span><span class="stat-value">Beneath Vornhold</span></div>
+  </div>
+  <p>If the Guildhall fails to contain it for even a single generation, The Great Maw floods the world with nightmarish monsters.</p>
+  <h2 class="content-h2">The 2470 EK Expedition</h2>
+  <p>Led by Primus Thalanil Silverleaf, Darian Vex, and Aurelia Emberdrake. <strong>130 elite adventurers entered. Only 60 returned.</strong> At 300 km, they found a door of black light inscribed:</p>
+  <blockquote>"Here ends the journey of those who still love life. Here begins the journey of those who no longer fear death."</blockquote>
+  <h2 class="content-h2">Layer by Layer</h2>
+  <h3 class="content-h3">Layers 0–5 km: The Upper Reaches</h3>
+  <table class="wiki-table">
+    <tr><th>Depth</th><th>Name</th><th>Hazards & Phenomena</th><th>Rank</th></tr>
+    <tr><td>0–500m</td><td>Dragon's Mouth</td><td>Ordinary caves, giant rats, slimes</td><td>D</td></tr>
+    <tr><td>500–1,000m</td><td>Glowing Moss Zone</td><td>Bioluminescent moss attracts monsters</td><td>D–C</td></tr>
+    <tr><td>1–2 km</td><td>Phosphorescent Forest</td><td>Tree light heals wounds—but causes hallucinations</td><td>C</td></tr>
+    <tr><td>2–3 km</td><td>Black Sand Desert</td><td>40°C "day" / 10°C "night". Thirsty sand causes fatal dehydration</td><td>C</td></tr>
+    <tr><td>3–4 km</td><td>The Hungry Lake</td><td>"Hungry" water instantly pulls victims under</td><td>C–B</td></tr>
+    <tr><td>4–5 km</td><td>The Living Cliff</td><td>1 km vertical. Actively shifts slope. Lava below</td><td>B</td></tr>
+  </table>
+  <div class="classified">
+    <div class="classified-header">CLASSIFIED — Council of Masters / Fallen Angels / Elder Elves / Noctisia Patriarchs Only</div>
+    <h3 class="content-h3" style="margin-top:0;">Layers 300–500 km: The False Heaven</h3>
+    <p>A 200 km corridor of perfect, idyllic paradise. Zero monsters. Friendly "Echo" inhabitants. The Dungeon's ultimate trap: the Old World's revenge through <strong>embrace, not killing</strong>. The Fusion Mechanism: Observation → Adaptation → Acceptance → Forgetting → Fusion. Victims become Echoes forever.</p>
+    <h3 class="content-h3">Layers 500–10,000+ km: The War of the Gods</h3>
+    <p>A perfect, infinitely looping replica of the Primordial War. Non-linear time. Mountain-sized god corpses. At 8,000–10,000 km: the Five Goddesses themselves are visible, desperately attempting to stitch reality back together—forever trapped in the moment of their greatest failure.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ IX. BESTIARY ═══════════════ -->
+<div id="section-bestial" class="wiki-section">
+  <h2 class="section-title">IX</h2>
+  <h1 class="page-title">Bestiary</h1>
+  <h2 class="content-h2">The Two Kinds of Monster</h2>
+  <p><strong>Surface Monsters</strong> — Nyxara's children. Impossibly diverse; no fixed bestiary exists. Some species can be tamed. They carry the Immune Instinct: they will abandon any fight to destroy dungeon spawn on sight.</p>
+  <p><strong>Dungeon Monsters</strong> — Born from Old World grudges, not biology. Shallow layers breed mindless chaos; deep layers spawn sentient, reproductive ancient nightmares.</p>
+  <h2 class="content-h2">Behemoths — The Walking World</h2>
+  <p>Living geological titans. Nyxara's children at the apex scale. Pure Behemoths are passive unless disturbed. Pure vs. Corrupted battles reshape geography.</p>
+  <table class="wiki-table">
+    <tr><th>Class</th><th>Height</th><th>Population</th></tr>
+    <tr><td>Common</td><td>15–30m</td><td>Thousands</td></tr>
+    <tr><td>Greater</td><td>30–60m</td><td>Hundreds</td></tr>
+    <tr><td>Elder</td><td>60–100m</td><td>Tens</td></tr>
+    <tr><td>Ancient</td><td>100m+</td><td>&lt;12 known</td></tr>
+  </table>
+  <p><strong>Notable:</strong> Terra'khan (beneath the World Tree), Pyre (Magma, Grasslands), <em>The Walking Mountains</em> (150–300m, forests grow on their backs).</p>
+  <h2 class="content-h2">Leviathans — Guardians of the World's Edge</h2>
+  <p>Ultimate creation of all Five Goddesses combined. Serpentine titans. Not predators—they patrol the Black Zone and Void edge. Their presence is the message: <em>"This is the limit of your journey."</em></p>
+  <table class="wiki-table">
+    <tr><th>Class</th><th>Length</th><th>Territory</th><th>Count</th></tr>
+    <tr><td>Lesser</td><td>20–50m</td><td>Inner Black Zone</td><td>Many</td></tr>
+    <tr><td>Greater</td><td>50–200m</td><td>Deep Black Zone</td><td>Dozens</td></tr>
+    <tr><td>Elder</td><td>200–500m</td><td>Outer Void boundary</td><td>&lt;30</td></tr>
+    <tr><td>World-Enders</td><td>500m–1km+</td><td>Absolute Void edge</td><td>&lt;7</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════ X. RACES ═══════════════ -->
+<div id="section-races" class="wiki-section">
+  <h2 class="section-title">X</h2>
+  <h1 class="page-title">Races of Aethelgard</h1>
+  <p>All surviving races are remnants of the Old World, carried into the New by the Five Goddesses.</p>
+  <div class="entry-card"><div class="entry-name">Human</div><div class="entry-meta">Height: 150–190cm · Lifespan: 60–80 yrs · Weave: Avg 1–2, Limit 4</div><p>The most varied and widespread race. Only race capable of producing <strong>Heroes</strong>: spontaneous Circle 6–8 individuals born once per 100–500 years.</p></div>
+  <div class="entry-card"><div class="entry-name">Elf (Aldari)</div><div class="entry-meta">Height: 175–200cm · Lifespan: 2,000–3,000 yrs · Weave: Avg 3–4, Limit 7</div><p>Divided between Aelderim (eternal memory) and Sol-Ventari (deliberate forgetting). <strong>Museum Sickness</strong>: cultural melancholy of living in the past.</p></div>
+  <div class="entry-card"><div class="entry-name">Dwarf (Dorn)</div><div class="entry-meta">Height: 120–150cm · Lifespan: 300–400 yrs · Weave: Avg 2–3, Limit 5</div><p>Divided by the Great Schism: Kazad-Vorn (dig downward to ancestors) vs. Vorn-Taraz (look outward, trade). Unmatched metallurgy and engineering.</p></div>
+  <div class="entry-card"><div class="entry-name">Werebeast (Feral)</div><div class="entry-meta">Lifespan: 150–200 yrs · Weave: Avg 2–3, Limit 5</div><p>Two nations: Verdantus (pacifism) vs. The Pack (militant). Beast form: +20–30% power, reduced control. Greatest trackers in existence.</p></div>
+  <div class="entry-card"><div class="entry-name">Pure Demon (Children of Chaos)</div><div class="entry-meta">Lifespan: 3,000–5,000 yrs · Weave: Avg 4–5, Limit 7 (Commanders 7–8)</div><p>Three forms: Lower, Elite/Monstrous, Perfect Human. <strong>Genetic Memory</strong>: 5,000 years of combat knowledge at birth. Cannot surrender.</p></div>
+  <div class="entry-card"><div class="entry-name">Fallen Angel</div><div class="entry-meta">Height: 180–210cm · Biologically immortal · Weave: Circle 8</div><p>Created as weapons by dead gods. Chose to forgive and protect the New World. Seven survived Great Shattering; four remain. Each worth 1,000 soldiers.</p></div>
+  <div class="entry-card"><div class="entry-name">Vampire (Children of Night)</div><div class="entry-meta">Technically immortal · Weave: Avg 3–4, Limit 6</div><p>80% in Noctisia. Philosophy: <em>"Thirst is not destiny."</em> Rebelled against The First King in 500 EK. Every soldier is a 500–1,000 year veteran.</p></div>
+  <div class="entry-card"><div class="entry-name">Orc (Oath Children)</div><div class="entry-meta">Height: 180–210cm · Lifespan: 300–400 yrs · Weave: Avg 3–4, Limit 6</div><p>Created as killing machines. Chose to be guardians instead. Sacred Oath: <em>"We will not let what happened to us happen to others."</em></p></div>
+  <div class="entry-card"><div class="entry-name">Dragon (Children of Sky)</div><div class="entry-meta">Length: 10–50m · Lifespan: 1,000–3,000 yrs · Weave: Avg 5–7, Limit 8</div><p>Elemental breath, shapeshifting, flight. 40% in Dragon Nest, 40% wild, 10% bound, 10% Black Dragon Faction.</p></div>
+  <div class="entry-card"><div class="entry-name">Sylph (Children of Nyxara)</div><div class="entry-meta">Biologically immortal · Weave: Avg 4–5, Limit 7</div><p>Translucent skin, cloud-like hair. Communicate through wind and silence. The most beautiful sadness in Aethelgard.</p></div>
+  <div class="entry-card"><div class="entry-name">Ancient Dragon (Silent Witnesses)</div><div class="entry-meta">Length: 200–500m · Pre-Old World · Weave: ≈Circle 9</div><p>Indistinguishable from landscape when resting. Witnessed Old World destroy itself and did nothing. Currently sleeping worldwide.</p></div>
+  <div class="entry-card"><div class="entry-name">Demi-Human (The Glue)</div><div class="entry-meta">Varies · Found everywhere · No nation of their own</div><p>Offspring of mixed races. Found everywhere, accepted everywhere, never fully belonging. Pope Callista III is Demi-Human.</p></div>
+</div>
+
+<!-- ═══════════════ XI. TIMELINE ═══════════════ -->
+<div id="section-timeline" class="wiki-section">
+  <h2 class="section-title">XI</h2>
+  <h1 class="page-title">Timeline of Aethelgard</h1>
+  <h2 class="content-h2">Age of Silence & Creation (Year 1 – 500 EK)</h2>
+  <table class="wiki-table">
+    <tr><th>Year</th><th>Event</th></tr>
+    <tr><td>Year 1 EK</td><td>The Great Slumber begins. Five Goddesses bury themselves.</td></tr>
+    <tr><td>Year 10 EK</td><td>Aelderim founded. "We shall not forget."</td></tr>
+    <tr><td>Year 23 EK</td><td>Gar-Vang founded by Alsaktar. First Sacred Oath sworn.</td></tr>
+    <tr><td>Year 50 EK</td><td>Verdantus founded by Werebeast tribes.</td></tr>
+    <tr><td>Year 103 EK</td><td>Kazad-Vorn established deep underground.</td></tr>
+    <tr><td>Year 250 EK</td><td>Valdran Empire forged by humans and demi-humans.</td></tr>
+    <tr><td>Year 500 EK</td><td><strong>The Sundering.</strong> Vampires rebel, flee south, found Noctisia.</td></tr>
+  </table>
+  <h2 class="content-h2">Age of Fragmentation & Dungeons (Year 600 – 1500 EK)</h2>
+  <p>Massive dungeons spawn globally. Catastrophic Dungeon Breaks wipe out cities. Cross-faction alliances form. Noctisia endures 500-year famine; Morpheus engineers Blood Gardens.</p>
+  <h2 class="content-h2">The First Great War (Year 1500 – 1715 EK)</h2>
+  <table class="wiki-table">
+    <tr><th>Year</th><th>Event</th></tr>
+    <tr><td>1500 EK</td><td>The First King declares war of total extinction.</td></tr>
+    <tr><td>1715 EK</td><td><strong>Battle of Malakh-Kar.</strong> First King fights 7 Heroes, kills 4, collapses into eternal slumber. 3 Fallen Angels fall. The Unraveler assumes command of retreating demon forces.</td></tr>
+  </table>
+  <h2 class="content-h2">Age of Recovery & Schism (Year 1715 – 2510 EK)</h2>
+  <table class="wiki-table">
+    <tr><th>Year</th><th>Event</th></tr>
+    <tr><td>1730 EK</td><td>Theocracy of the Sacred Wound founded.</td></tr>
+    <tr><td>1750 EK</td><td>Verdantus Code codifies absolute pacifism.</td></tr>
+    <tr><td>1800 EK</td><td>The Great Maw spawns.</td></tr>
+    <tr><td>1890 EK</td><td>Food Council created. Iron Covenant born from Valdris Civil War.</td></tr>
+    <tr><td>2000 EK</td><td><strong>Great Schism of Faith.</strong> Sanctum Aeternum born.</td></tr>
+    <tr><td>2050 EK</td><td>Guildhall declares sovereignty.</td></tr>
+    <tr><td>2200 EK</td><td>Forbidden Expedition. All travel beyond Black Zone forbidden.</td></tr>
+    <tr><td>2400 EK</td><td>Iron Covenant declares sovereignty.</td></tr>
+    <tr><td>2470 EK</td><td><strong>Great Maw Expedition.</strong> 130 enter, 60 return. All below 300 km classified.</td></tr>
+  </table>
+  <h2 class="content-h2">The Modern Era (Year 2510 EK – Present)</h2>
+  <p>Aethelgard endures in tense equilibrium. The Valdran bloodline thins, the Black Domain's Revisionist Faction grows, the Great Maw festers. The First King slumbers. The Five Goddesses sleep.</p>
+  <blockquote>The world endures—not because it is strong, but because its creators gave it no choice.</blockquote>
+</div>
+
+<hr class="divider" style="margin-top:3rem;">
+<p style="text-align:center; color: var(--dim); font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 4px; padding-bottom: 1rem;">— CODEX AETHELGARDENSIS —</p>
+
+</div><!-- /#content -->
+</main>
+
+<script>
+/* ═══════════════ SECTION SWITCHING ═══════════════ */
+const allSections = document.querySelectorAll('.wiki-section');
+const navButtons = document.querySelectorAll('#toc button[data-target]');
+const mainEl = document.getElementById('main');
+const searchInput = document.getElementById('search-input');
+const tocSections = document.querySelectorAll('.toc-section');
+
+function showSection(id) {
+  // Hide all sections
+  allSections.forEach(s => s.classList.remove('active'));
+  // Show target
+  const target = document.getElementById('section-' + id);
+  if (target) {
+    target.classList.add('active');
+    mainEl.scrollTop = 0;
+  }
+  // Update active nav state
+  navButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.target === id);
+  });
+}
+
+// Sidebar button click handlers
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => showSection(btn.dataset.target));
+});
+
+// Sidebar header returns to welcome
+document.getElementById('sidebar-header').addEventListener('click', () => showSection('welcome'));
+
+// Search filter
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  navButtons.forEach(btn => {
+    const match = !q || btn.textContent.toLowerCase().includes(q);
+    btn.style.display = match ? '' : 'none';
+  });
+  // Hide/show toc-section labels based on visible buttons
+  tocSections.forEach(sec => {
+    const visible = [...sec.querySelectorAll('button')].some(b => b.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+});
+
+// Default: show welcome
+showSection('welcome');
+</script>
+
+</body>
+  </html>
